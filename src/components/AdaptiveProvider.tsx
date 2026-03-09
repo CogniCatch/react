@@ -1,0 +1,91 @@
+import React, { createContext, useContext, type ReactNode } from 'react';
+import { toast } from 'sonner';
+import { sanitizeText } from '../libs/pii-sanitizer';
+export interface AdaptiveContextType {
+  apiKey: string;
+  apiUrl?: string;
+  language?: string;
+  captureAsyncError: (error: Error | unknown) => Promise<void>;
+}
+
+export const AdaptiveContext = createContext<AdaptiveContextType | undefined>(undefined);
+
+export function AdaptiveProvider({ 
+  apiKey, 
+  apiUrl,
+  language, 
+  children 
+}: { 
+  apiKey: string; 
+  apiUrl?: string; 
+  language?: string;
+  children: ReactNode 
+}) {
+  
+  const captureAsyncError = async (rawError: Error | unknown) => {
+    const error = rawError instanceof Error ? rawError : new Error(String(rawError));
+
+    const toastId = toast.loading("Analyzing error context...", {
+      description: "Applying AI recovery heuristics..."
+    });
+
+    try {
+      const safeMessage = sanitizeText(error.message).slice(0, 500);
+      const safeStack = sanitizeText(error.stack || "").slice(0, 1500);
+
+      const saasEndpoint = apiUrl || 'https://api.cognicatch.dev/v1/analyze-error';
+
+      const browserLang = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
+      const finalLanguage = language || browserLang;
+
+      const response = await fetch(saasEndpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ error: safeMessage, stack: safeStack, language: finalLanguage })
+      });
+
+      if (!response.ok) throw new Error("SaaS API Error");
+
+      const aiResult = await response.json();
+
+      if (aiResult) {
+        const severity = aiResult.severity || aiResult.level;
+
+        if (severity === 'low') {
+          toast.info(aiResult.title, { id: toastId, description: aiResult.description });
+        } else {
+          toast.error(aiResult.title, { id: toastId, description: aiResult.description });
+        }
+      }
+    } catch (e) {
+      console.error("AdaptiveUI API Request failed:", e);
+      
+      toast.error("Analysis Failed", { 
+        id: toastId, 
+        description: "We couldn't reach the AI servers. Please try again later." 
+      });
+    }
+  };
+
+  return (
+    <AdaptiveContext.Provider value={{ apiKey, apiUrl, language, captureAsyncError }}>
+      {children}
+    </AdaptiveContext.Provider>
+  );
+}
+
+export function useAdaptive() {
+  const context = useContext(AdaptiveContext);
+  
+  if (!context) {
+    throw new Error(
+      "❌ AdaptiveUI Developer Error: You tried to use the 'useAdaptive' hook outside of an <AdaptiveProvider>. " +
+      "Please wrap the root of your application (e.g., App.tsx) with <AdaptiveProvider apiKey='YOUR_KEY'>"
+    );
+  }
+  
+  return context;
+}
