@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-03-13
+
+### Added
+- Added `showRefresh` and `statusUrl` properties to the public `AdaptiveErrorBoundary` interface, allowing fine-grained control over the fatal recovery UI.
+
+### Changed
+- Refactored `AdaptiveFatalError` layout architecture. Switched from absolute positioning (`translate-x/y`) to a robust, invisible Flexbox wrapper to guarantee perfect modal centering regardless of the host application's global CSS resets or transform rules.
+
+### Fixed
+- Fixed an alignment bug in `AdaptiveFatalError` where the modal would render in the corner of the screen due to CSS stacking context conflicts.
+- Fixed a prop-trapping issue in `AdaptiveErrorBoundary` where `showRefresh` and `statusUrl` were not being successfully passed down to the active recovery UI.
+
+### Removed
+- Removed redundant `createPortal` (from `react-dom`) usage inside `AdaptiveFatalError` to resolve "Double Portaling" conflicts, as Radix UI's `<Dialog.Portal>` handles DOM injection natively.
+
 ## [1.1.0] - 2026-03-13
 
 ### Added
@@ -26,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed `forceMount` property from Radix-based Portal components to prevent hydration mismatches and "Zombie Modals".
 
-## [1.0.0] - 2026-02-15
+## [1.0.0] - 2026-03-05
 
 ### Added
 - Initial release of `@cognicatch/react`.

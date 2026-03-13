@@ -1,5 +1,4 @@
 import React, { Component, type ErrorInfo, type ReactNode } from 'react'
-// Importação ajustada da nossa função sanitizadora auditada (o maxLength já foi resolvido nela)
 import { sanitizeErrorContext } from '../libs/pii-sanitizer'
 import { AdaptiveBanner } from './AdaptiveBanner'
 import { AdaptiveFatalError } from './AdaptiveFatalError'
@@ -9,6 +8,8 @@ import type { AdaptiveErrorProps, GenUIResponse, AutoModeProps, ThemeOptions } f
 
 type Props = AdaptiveErrorProps & {
   children: ReactNode
+  showRefresh?: boolean
+  statusUrl?: string
 }
 
 interface State {
@@ -42,7 +43,6 @@ const StaticFallback = ({ onRecover, theme }: StaticFallbackProps) => {
         <button
           onClick={onRecover}
           style={{
-            // Se o usuário definiu uma cor primária no objeto ThemeOptions, usamos aqui!
             backgroundColor: (theme as ThemeOptions)?.primaryColor || undefined
           }}
           className="px-4 py-2 text-xs font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:opacity-90 transition-opacity"
@@ -221,13 +221,25 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
       return this.props.children
     }
 
-    const { mode, theme, className } = this.props
+    const { mode, theme, className, showRefresh, statusUrl } = this.props
 
     if (mode === 'manual') {
       const { severity, title, description, actionLabel } = this.props
 
       try {
-        if (severity === 'high') return <AdaptiveFatalError isOpen={true} onOpenChange={(open) => { if (!open) this.handleRecover() }} title={title} description={description} theme={theme} />
+        if (severity === 'high') {
+          return (
+            <AdaptiveFatalError
+              isOpen={true}
+              onOpenChange={(open) => { if (!open) this.handleRecover() }}
+              title={title}
+              description={description}
+              theme={theme}
+              showRefresh={showRefresh}
+              statusUrl={statusUrl}
+            />
+          )
+        }
         if (severity === 'medium') return <AdaptiveBanner title={title} description={description} primaryAction={actionLabel ? { label: actionLabel, onClick: this.handleRecover } : undefined} theme={theme} className={className} />
 
         if (severity === 'low') return null
@@ -252,7 +264,17 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 
         try {
           if (severity === 'high') {
-            return <AdaptiveFatalError isOpen={true} onOpenChange={(open) => { if (!open) this.handleRecover() }} title={title} description={description} theme={theme} />
+            return (
+              <AdaptiveFatalError
+                isOpen={true}
+                onOpenChange={(open) => { if (!open) this.handleRecover() }}
+                title={title}
+                description={description}
+                theme={theme}
+                showRefresh={showRefresh}
+                statusUrl={statusUrl}
+              />
+            )
           }
           if (severity === 'medium') {
             return <AdaptiveBanner title={title} description={description} primaryAction={actionLabel ? { label: actionLabel, onClick: this.handleRecover } : undefined} theme={theme} className={className} />
