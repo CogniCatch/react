@@ -3,87 +3,46 @@
  *
  * Strips potential PII from error context before it ever reaches the LLM.
  * This is the Zero-PII contract: raw errors NEVER leave the boundary unsanitized.
+ * * AUDITED FOR:
+ * 1. Client-Side Performance (Main Thread blocking prevention)
+ * 2. ReDoS (Regular Expression Denial of Service)
+ * 3. SPA Relative Routing Support
  */
 
-// ─── Regex Patterns ───────────────────────────────────────────────────────────
+// ─── Regex Patterns (Hardened) ────────────────────────────────────────────────
 
 const PII_PATTERNS: Array<{ name: string; pattern: RegExp; replacement: string }> = [
-  // Emails
-  {
-    name: "email",
-    pattern: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,
-    replacement: "[EMAIL_REDACTED]",
-  },
-  // Bearer / API tokens in Authorization headers
-  {
-    name: "bearer_token",
-    pattern: /Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi,
-    replacement: "Bearer [TOKEN_REDACTED]",
-  },
-  // JWT tokens (three base64url segments)
-  {
-    name: "jwt",
-    pattern: /eyJ[A-Za-z0-9\-_]+\.eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+/g,
-    replacement: "[JWT_REDACTED]",
-  },
-  // Generic API keys (long hex or base64-looking strings 32+ chars)
-  {
-    name: "api_key",
-    pattern: /\b([A-Za-z0-9]{32,})\b/g,
-    replacement: "[KEY_REDACTED]",
-  },
-  // Phone numbers (loose match)
-  {
-    name: "phone",  
-    pattern: /(\+?\d[\d\s\-().]{7,}\d)/g,
-    replacement: "[PHONE_REDACTED]",
-  },
-  // IP addresses
-  {
-    name: "ipv4",
-    pattern: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g,
-    replacement: "[IP_REDACTED]",
-  },
-  // URL query parameters that could carry tokens/emails
-  {
-    name: "url_query_params",
-    pattern: /([?&](?:token|key|secret|auth|email|user|access_token|refresh_token|api_key|apikey|password|passwd|pwd)=[^&\s]+)/gi,
-    replacement: "[PARAM_REDACTED]",
-  },
-  // Potential SSNs
-  {
-    name: "ssn",
-    pattern: /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/g,
-    replacement: "[SSN_REDACTED]",
-  },
-  // Credit card numbers (Luhn-ish pattern)
-  {
-    name: "credit_card",
-    pattern: /\b(?:\d[ -]?){13,19}\b/g,
-    replacement: "[CC_REDACTED]",
-  },
+  { name: "email", pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, replacement: "[EMAIL_REDACTED]" },
+  { name: "bearer_token", pattern: /Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, replacement: "Bearer [TOKEN_REDACTED]" },
+  { name: "jwt", pattern: /eyJ[A-Za-z0-9\-_]+\.eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+/g, replacement: "[JWT_REDACTED]" },
+  { name: "api_key", pattern: /\b(?:sk|pk|key|api|sec)_[a-zA-Z0-9]{20,}\b|\b[A-Za-z0-9]{32,48}\b/g, replacement: "[KEY_REDACTED]" },
+  { name: "phone", pattern: /(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,5}[-.\s]?\d{4}\b/g, replacement: "[PHONE_REDACTED]" },
+  { name: "ipv4", pattern: /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g, replacement: "[IP_REDACTED]" },
+  { name: "url_query_params", pattern: /([?&](?:token|key|secret|auth|email|user|access_token|refresh_token|api_key|apikey|password|passwd|pwd)=[^&\s]+)/gi, replacement: "[PARAM_REDACTED]" },
+  { name: "ssn", pattern: /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/g, replacement: "[SSN_REDACTED]" },
+  { name: "credit_card", pattern: /\b(?:\d[ -]?){12,18}\d\b/g, replacement: "[CC_REDACTED]" },
 ];
 
 // ─── Sanitize ─────────────────────────────────────────────────────────────────
 
-export function sanitizeText(input: string): string {
-  let sanitized = input;
-  for (const { pattern, replacement } of PII_PATTERNS) {
-    sanitized = sanitized.replace(pattern, replacement);
+export function sanitizeText(input: string, maxLength: number = 1000): string {
+  if (!input) return '';
+
+  let sanitized = String(input);
+  if (sanitized.length > maxLength) {
+    sanitized = sanitized.slice(0, maxLength) + '... [TRUNCATED]';
   }
-  return sanitized;
+
+  return PII_PATTERNS.reduce((text, { pattern, replacement }) => {
+    return text.replace(pattern, replacement);
+  }, sanitized);
 }
 
 export interface SanitizedErrorContext {
-  /** The sanitized error message */
   message: string;
-  /** HTTP status code if from an API call */
   httpStatus?: number;
-  /** Error code / type — no values, just the shape */
   errorCode?: string;
-  /** The route/path where the error occurred — query params stripped */
   routePath?: string;
-  /** Component name from the React error boundary */
   componentName?: string;
 }
 
@@ -91,25 +50,22 @@ export interface RawErrorContext {
   message: string;
   httpStatus?: number;
   errorCode?: string;
-  /** Full URL — will be cleaned */
   url?: string;
   componentStack?: string;
   componentName?: string;
 }
 
 export function sanitizeErrorContext(raw: RawErrorContext): SanitizedErrorContext {
-  // Strip only path, drop query string (could contain tokens)
   let routePath: string | undefined;
   if (raw.url) {
     try {
-      const parsed = new URL(raw.url);
-      routePath = parsed.pathname; // path only, no query
+      const parsed = new URL(raw.url, 'http://dummy.com');
+      routePath = parsed.pathname;
     } catch {
       routePath = undefined;
     }
   }
 
-  // Extract component name from stack (first line only, strip file paths)
   let componentName = raw.componentName;
   if (!componentName && raw.componentStack) {
     const firstLine = raw.componentStack.split("\n")[1] ?? "";
@@ -118,9 +74,9 @@ export function sanitizeErrorContext(raw: RawErrorContext): SanitizedErrorContex
   }
 
   return {
-    message: sanitizeText(raw.message).slice(0, 500), // hard cap
+    message: sanitizeText(raw.message, 500), 
     httpStatus: raw.httpStatus,
-    errorCode: raw.errorCode ? sanitizeText(raw.errorCode).slice(0, 100) : undefined,
+    errorCode: raw.errorCode ? sanitizeText(raw.errorCode, 100) : undefined,
     routePath,
     componentName,
   };
