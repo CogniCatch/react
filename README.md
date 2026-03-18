@@ -1,5 +1,8 @@
 # CogniCatch React
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7973b59c-257c-4994-9e65-4416bf6d8167" />
+
+
 [![npm version](https://img.shields.io/npm/v/@cognicatch/react.svg?style=flat-square&color=f59e0b)](https://www.npmjs.com/package/@cognicatch/react)
 [![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
