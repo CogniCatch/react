@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useCallback, useMemo, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { sanitizeErrorContext } from '../libs/pii-sanitizer'
+export interface CaptureAsyncOptions {
+  handleUserBilling?: boolean;
+}
 
 export interface AdaptiveContextType {
   apiKey: string
   apiUrl?: string
   language?: string
-  captureAsyncError: (error: Error | unknown) => Promise<void>
+  handleUserBilling?: boolean
+  captureAsyncError: (error: Error | unknown, options?: CaptureAsyncOptions) => Promise<void>
 }
 
 export const AdaptiveContext = createContext<AdaptiveContextType | undefined>(undefined)
@@ -15,15 +19,17 @@ export function AdaptiveProvider({
   apiKey, 
   apiUrl,
   language, 
+  handleUserBilling = false,
   children 
 }: { 
   apiKey: string 
   apiUrl?: string 
   language?: string
+  handleUserBilling?: boolean
   children: ReactNode 
 }) {
   
-  const captureAsyncError = useCallback(async (rawError: Error | unknown) => {
+  const captureAsyncError = useCallback(async (rawError: Error | unknown, options?: CaptureAsyncOptions) => {
     const error = rawError instanceof Error ? rawError : new Error(String(rawError))
 
     const toastId = toast.loading("Analyzing error context...", {
@@ -52,6 +58,10 @@ export function AdaptiveProvider({
       const saasEndpoint = apiUrl || 'https://api.cognicatch.dev/v1/analyze-error'
       const browserLang = typeof navigator !== 'undefined' ? navigator.language : 'en-US'
       const finalLanguage = language || browserLang
+      
+      const finalHandleUserBilling = options?.handleUserBilling !== undefined 
+        ? options.handleUserBilling 
+        : handleUserBilling
 
       const response = await fetch(saasEndpoint, {
         method: 'POST',
@@ -63,7 +73,8 @@ export function AdaptiveProvider({
           error: safeContext.message, 
           stack: safeContext.componentName ? `Component: ${safeContext.componentName}` : (safeContext.errorCode || "Async Error"),
           routePath: safeContext.routePath,
-          language: finalLanguage 
+          language: finalLanguage,
+          handleUserBilling: finalHandleUserBilling
         })
       })
 
@@ -88,14 +99,15 @@ export function AdaptiveProvider({
         description: "We couldn't reach the AI servers. Please try again later." 
       })
     }
-  }, [apiKey, apiUrl, language])
+  }, [apiKey, apiUrl, language, handleUserBilling])
 
   const contextValue = useMemo(() => ({
     apiKey,
     apiUrl,
     language,
+    handleUserBilling,
     captureAsyncError
-  }), [apiKey, apiUrl, language, captureAsyncError])
+  }), [apiKey, apiUrl, language, handleUserBilling, captureAsyncError])
 
   return (
     <AdaptiveContext.Provider value={contextValue}>

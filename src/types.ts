@@ -38,6 +38,7 @@ export interface AutoModeProps extends BaseAdaptiveProps {
   apiUrl?: string; 
   error?: Error;
   language?: string;
+  handleUserBilling?: boolean;
 }
 export type AdaptiveErrorProps = ManualModeProps | AutoModeProps;
 
