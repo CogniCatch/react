@@ -44,6 +44,8 @@ const StaticFallback = ({ onRecover, theme }: StaticFallbackProps) => {
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
+						role="img"
+						aria-label="error icon"
 					>
 						<path
 							strokeLinecap="round"
@@ -63,6 +65,7 @@ const StaticFallback = ({ onRecover, theme }: StaticFallbackProps) => {
 				</div>
 				<button
 					onClick={onRecover}
+					type="button"
 					style={{
 						backgroundColor: (theme as ThemeOptions)?.primaryColor || undefined,
 					}}
@@ -293,7 +296,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 					)
 
 				if (severity === "low") return null
-			} catch (renderError) {
+			} catch (_renderError) {
 				this.setState({ hasCrashedFallback: true })
 				return null
 			}
@@ -348,7 +351,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 					if (severity === "low") {
 						return null
 					}
-				} catch (renderError) {
+				} catch (_renderError) {
 					this.setState({ hasCrashedFallback: true })
 					return null
 				}

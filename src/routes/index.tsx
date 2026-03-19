@@ -22,6 +22,7 @@ function BuggyWidget() {
 				This component is working perfectly... for now.
 			</p>
 			<button
+				type="button"
 				onClick={() => setShouldCrash(true)}
 				className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors shadow-md"
 			>
@@ -56,6 +57,7 @@ function Index() {
 					Playground
 				</h1>
 				<button
+					type="button"
 					onClick={() => setIsDarkMode(!isDarkMode)}
 					className="p-2 rounded-full bg-zinc-200 text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors shadow-sm"
 				>
@@ -87,6 +89,7 @@ function Index() {
 			<div className="w-full border-t border-zinc-200 dark:border-zinc-800 pt-8 flex flex-col items-center gap-4">
 				<div className="flex flex-wrap justify-center gap-3">
 					<button
+						type="button"
 						onClick={() =>
 							adaptiveToast.success(
 								"Perfil Atualizado",
@@ -98,6 +101,7 @@ function Index() {
 						Success
 					</button>
 					<button
+						type="button"
 						onClick={() =>
 							adaptiveToast.warning(
 								"Atenção",
@@ -109,6 +113,7 @@ function Index() {
 						Warning
 					</button>
 					<button
+						type="button"
 						onClick={() => setIsFatalOpen(true)}
 						className="px-3 py-1.5 bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-500/20 rounded-md text-sm hover:scale-105 transition-transform"
 					>
@@ -130,12 +135,16 @@ function Index() {
 
 				<div className="grid grid-cols-2 gap-4 w-full bg-white dark:bg-zinc-900/50 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
 					<div className="flex flex-col gap-1.5">
-						<label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+						<label
+							className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
+							htmlFor="#backgroundColorInput"
+						>
 							Background Color
 						</label>
 						<div className="flex gap-2">
 							<input
 								type="color"
+								id="backgroundColorInput"
 								value={themeInput.backgroundColor}
 								onChange={(e) =>
 									setThemeInput({
@@ -160,12 +169,16 @@ function Index() {
 					</div>
 
 					<div className="flex flex-col gap-1.5">
-						<label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+						<label
+							className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
+							htmlFor="#backgroundTextInput"
+						>
 							Text Color
 						</label>
 						<div className="flex gap-2">
 							<input
 								type="color"
+								id="backgroundTextInput"
 								value={themeInput.textColor}
 								onChange={(e) =>
 									setThemeInput({ ...themeInput, textColor: e.target.value })
@@ -184,12 +197,16 @@ function Index() {
 					</div>
 
 					<div className="flex flex-col gap-1.5">
-						<label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+						<label
+							className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
+							htmlFor="#backgroundPrimaryColorInput"
+						>
 							Primary Color (Border/Accent)
 						</label>
 						<div className="flex gap-2">
 							<input
 								type="color"
+								id="backgroundPrimaryColorInput"
 								value={themeInput.primaryColor}
 								onChange={(e) =>
 									setThemeInput({ ...themeInput, primaryColor: e.target.value })
@@ -208,11 +225,15 @@ function Index() {
 					</div>
 
 					<div className="flex flex-col gap-1.5">
-						<label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+						<label
+							className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
+							htmlFor="#backgroundPrimaryColorInput"
+						>
 							Border Radius
 						</label>
 						<input
 							type="text"
+							id="backgroundBorderRadiusInput"
 							value={themeInput.borderRadius}
 							onChange={(e) =>
 								setThemeInput({ ...themeInput, borderRadius: e.target.value })
@@ -223,6 +244,7 @@ function Index() {
 				</div>
 
 				<button
+					type="button"
 					onClick={() =>
 						adaptiveToast.custom(
 							"Applied Theme",

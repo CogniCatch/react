@@ -37,7 +37,7 @@
     "format": "biome format --write",
     "lint": "biome lint --write",
     "check": "biome check",
-    "check:fix": "biome check --write"
+    "check:fix": "biome check --write --unsafe"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

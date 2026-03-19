@@ -75,6 +75,7 @@ export function AdaptiveBanner({
 							{primaryAction && (
 								<button
 									onClick={primaryAction.onClick}
+									type="button"
 									style={
 										theme?.primaryColor
 											? { backgroundColor: theme.primaryColor, color: "#fff" }
@@ -92,6 +93,7 @@ export function AdaptiveBanner({
 
 							{secondaryAction && (
 								<button
+									type="button"
 									onClick={secondaryAction.onClick}
 									className="text-xs font-medium opacity-70 hover:opacity-100 transition-opacity underline-offset-4 hover:underline"
 									style={{ color: theme?.textColor }}

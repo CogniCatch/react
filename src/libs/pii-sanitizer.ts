@@ -73,7 +73,7 @@ export function sanitizeText(input: string, maxLength: number = 1000): string {
 
 	let sanitized = String(input)
 	if (sanitized.length > maxLength) {
-		sanitized = sanitized.slice(0, maxLength) + "... [TRUNCATED]"
+		sanitized = `${sanitized.slice(0, maxLength)}... [TRUNCATED]`
 	}
 
 	return PII_PATTERNS.reduce((text, { pattern, replacement }) => {

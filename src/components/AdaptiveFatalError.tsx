@@ -83,6 +83,7 @@ export function AdaptiveFatalError({
 												? onPrimaryAction()
 												: window.location.reload()
 										}
+										type="button"
 										style={
 											primaryColor
 												? {
