@@ -1,5 +1,4 @@
 import { AlertCircle, AlertTriangle } from "lucide-react"
-import React from "react"
 import { cn } from "../libs/utils"
 import type { ThemeOptions } from "../types"
 

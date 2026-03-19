@@ -107,7 +107,7 @@ export const adaptiveToast = {
 		toast.loading(title, { description }),
 
 	custom: (title: string, description: string, theme: ThemeOptions) => {
-		toast.custom((t) => (
+		toast.custom(() => (
 			<div
 				className={cn("flex gap-3 p-4 shadow-2xl border", theme.fontFamily)}
 				style={{

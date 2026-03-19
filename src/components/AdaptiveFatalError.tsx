@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog"
 import { AlertOctagon, ExternalLink, RefreshCcw } from "lucide-react"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "../libs/utils"
 import type { ThemeOptions } from "../types"
 
