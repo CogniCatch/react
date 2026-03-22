@@ -14,7 +14,7 @@ function BuggyWidget() {
 	const [shouldCrash, setShouldCrash] = useState(false)
 	if (shouldCrash)
 		throw new Error(
-			"Payment failed for user admin@empresa.com.br with SSN 123-45-6789 using Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+			"Payment failed for user test@test.com with SSN 123-45-6789 using Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
 		)
 	return (
 		<div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl bg-zinc-50 dark:bg-zinc-900/50">

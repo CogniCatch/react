@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2026-03-22
+
+### Fixed
+- Resolved persistent `Module not found` and sub-dependency resolution errors (e.g., `@radix-ui/react-primitive`, `@radix-ui/react-focus-scope`) in Next.js Turbopack and strict `pnpm` environments.
+- Updated Vite build configuration (`vite.config.build.ts`) to internally bundle `@radix-ui/*` dependencies instead of marking them as `external`, eliminating fragmented package manager resolution issues for host applications.
+
 ## [1.1.2] - 2026-03-22
 
 ### Fixed
