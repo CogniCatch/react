@@ -31,6 +31,7 @@ export default defineConfig({
         'zod',
         'clsx',
         'tailwind-merge',
+        /^@radix-ui\// 
       ],
       output: { 
         globals: { react: 'React', 'react-dom': 'ReactDOM' },
