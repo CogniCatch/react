@@ -8,33 +8,9 @@ dependencies:
   '@radix-ui/react-dialog':
     specifier: ^1.1.15
     version: 1.1.15(@types/react-dom@19.2.0)(@types/react@19.2.0)(react-dom@19.2.0)(react@19.2.0)
-  '@radix-ui/react-dismissable-layer':
-    specifier: ^1.1.0
-    version: 1.1.11(@types/react-dom@19.2.0)(@types/react@19.2.0)(react-dom@19.2.0)(react@19.2.0)
-  '@radix-ui/react-focus-guards':
-    specifier: ^1.1.0
-    version: 1.1.3(@types/react@19.2.0)(react@19.2.0)
-  '@radix-ui/react-focus-scope':
-    specifier: ^1.1.0
-    version: 1.1.7(@types/react-dom@19.2.0)(@types/react@19.2.0)(react-dom@19.2.0)(react@19.2.0)
-  '@radix-ui/react-id':
-    specifier: ^1.1.0
-    version: 1.1.1(@types/react@19.2.0)(react@19.2.0)
-  '@radix-ui/react-portal':
-    specifier: ^1.1.0
-    version: 1.1.9(@types/react-dom@19.2.0)(@types/react@19.2.0)(react-dom@19.2.0)(react@19.2.0)
-  '@radix-ui/react-presence':
-    specifier: ^1.1.0
-    version: 1.1.5(@types/react-dom@19.2.0)(@types/react@19.2.0)(react-dom@19.2.0)(react@19.2.0)
-  '@radix-ui/react-primitive':
-    specifier: ^2.0.0
-    version: 2.1.3(@types/react-dom@19.2.0)(@types/react@19.2.0)(react-dom@19.2.0)(react@19.2.0)
   '@radix-ui/react-slot':
     specifier: ^1.2.4
     version: 1.2.4(@types/react@19.2.0)(react@19.2.0)
-  '@radix-ui/react-use-controllable-state':
-    specifier: ^1.1.0
-    version: 1.2.2(@types/react@19.2.0)(react@19.2.0)
   class-variance-authority:
     specifier: ^0.7.1
     version: 0.7.1

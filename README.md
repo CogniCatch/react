@@ -133,4 +133,24 @@ The provider accepts all standard [Sonner](https://sonner.emilkowal.ski/) config
 | `expand` | `boolean` | `false` | Whether toasts should expand on hover. |
 | `richColors` | `boolean` | `true` | Enables colored backgrounds for success/error/w |
 
+## 🚨 Troubleshooting
+
+### Next.js Turbopack + pnpm (`Module not found: @radix-ui/*`)
+
+If you are using **Next.js with Turbopack** (`next dev --turbo`) alongside **pnpm**, you might encounter module resolution errors complaining about missing Radix UI internal dependencies. This is a known interaction between pnpm's strict symlinked `node_modules` architecture and Turbopack's compiler.
+
+**The Fix:**
+You need to instruct pnpm to hoist the dependencies to the root of your `node_modules` folder.
+
+1. Create an `.npmrc` file in the root of your host project and add the following line:
+```text
+node-linker=hoisted
+```
+(Alternatively, you can use public-hoist-pattern[]=*@radix-ui/* to strictly hoist only the UI primitives).
+
+2. Clear your local cache and reinstall your dependencies:
+```bash
+rm -rf node_modules .next pnpm-lock.yaml
+pnpm install
+```
 *Built with precision by the CogniCatch team.*
