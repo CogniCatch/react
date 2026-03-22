@@ -1,6 +1,6 @@
 {
   "name": "@cognicatch/react",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "GenUI Error Boundaries and AI Recovery UIs for React",
   "private": false,
   "type": "module",
@@ -45,6 +45,10 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dismissable-layer": "^1.1.0", 
+    "@radix-ui/react-focus-scope": "^1.1.0",
+    "@radix-ui/react-portal": "^1.1.0",
+    "@radix-ui/react-presence": "^1.1.0",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
