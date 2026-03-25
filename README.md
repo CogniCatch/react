@@ -146,11 +146,11 @@ You need to instruct pnpm to hoist the dependencies to the root of your `node_mo
 ```text
 node-linker=hoisted
 ```
-(Alternatively, you can use public-hoist-pattern[]=*@radix-ui/* to strictly hoist only the UI primitives).
+(Alternatively, you can use `public-hoist-pattern[]=*@radix-ui/*` to strictly hoist only the UI primitives).
 
 2. Clear your local cache and reinstall your dependencies:
 ```bash
 rm -rf node_modules .next pnpm-lock.yaml
 pnpm install
 ```
-*Built with precision by the CogniCatch team.*
+*Built with precision by Matheus Lima.*
