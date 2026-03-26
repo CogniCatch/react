@@ -168,6 +168,8 @@ export function CheckoutFlow() {
 }
 ```
 
+Because onError exposes the raw (error, errorInfo), it is completely provider-agnostic. You can easily swap Sentry with Datadog (datadogLogs.logger.error()), LogRocket, Bugsnag, or your own custom backend endpoint.
+
 ## 🚨 Troubleshooting
 
 ### Next.js Turbopack + pnpm (`Module not found: @radix-ui/*`)
