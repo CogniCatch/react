@@ -115,7 +115,10 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 			try {
 				this.props.onError(error, errorInfo)
 			} catch (callbackError) {
-				console.error("CogniCatch: External onError callback failed to execute.", callbackError)
+				console.error(
+					"CogniCatch: External onError callback failed to execute.",
+					callbackError,
+				)
 			}
 		}
 
