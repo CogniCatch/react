@@ -44,7 +44,12 @@ import { AdaptiveErrorBoundary } from '@cognicatch/react';
   mode="manual" 
   severity="medium"
   title="Component Error"
+  description="Error description"
   onRecover={() => window.location.reload()}
+  onError={(error, errorInfo) => {
+    // Silently log to Sentry while CogniCatch handles the UI
+    Sentry.captureException(error, { extra: errorInfo });
+  }}
 >
   <YourFragileComponent />
 </AdaptiveErrorBoundary>
@@ -121,7 +126,9 @@ In the Pro Tier, Artificial Intelligence takes the wheel. The library analyzes t
 | `mode` | `'manual' \| 'auto'` | `'manual'` | Use 'manual' for local/free tier. |
 | `severity` | `'low' \| 'medium' \| 'high'` | `'medium'` | Defines the UI type (Toast, Banner, or Modal). |
 | `title` | `string` | `undefined` | Fallback title (Manual mode only). |
+| `description` | `string` | `undefined` | Fallback description message (Manual mode only). |
 | `onRecover` | `() => void` | `undefined` | Callback triggered by the action button. |
+| `onError` | `(error: Error, errorInfo: ErrorInfo) => void` | `undefined` | Callback to silently log errors to external services (e.g., Sentry, Datadog) without breaking the fallback UI. |
 
 ### `<AdaptiveToastProvider />` Props
 

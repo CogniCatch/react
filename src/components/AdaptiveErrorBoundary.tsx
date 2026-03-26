@@ -15,6 +15,7 @@ type Props = AdaptiveErrorProps & {
 	children: ReactNode
 	showRefresh?: boolean
 	statusUrl?: string
+	onError?: (error: Error, errorInfo: ErrorInfo) => void
 }
 
 interface State {
@@ -109,6 +110,14 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		if (this.state.hasCrashedFallback) return
+
+		if (this.props.onError) {
+			try {
+				this.props.onError(error, errorInfo)
+			} catch (callbackError) {
+				console.error("CogniCatch: External onError callback failed to execute.", callbackError)
+			}
+		}
 
 		const { mode } = this.props
 

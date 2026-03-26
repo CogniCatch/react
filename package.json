@@ -1,6 +1,6 @@
 {
   "name": "@cognicatch/react",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "GenUI Error Boundaries and AI Recovery UIs for React",
   "private": false,
   "type": "module",

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2026-03-26
+
+### Added
+- **Observability:** Introduced the `onError` callback to `AdaptiveErrorBoundary`, enabling seamless integration with external logging platforms (e.g., Sentry, Datadog). This allows applications to capture error telemetry silently while CogniCatch handles the graceful UI degradation.
+
+### Changed
+- **API Expansion:** Enforced the `description` property as a required field in the API reference for `manual` mode to guarantee consistent UX during fallback states.
+- **Architecture:** Hardened the error boundary by wrapping the external `onError` callback execution in a fail-safe `try/catch` block. This ensures that network timeouts or failures in third-party loggers do not crash the recovery UI.
+
 ## [1.1.5] - 2026-03-22
 
 ### Changed
