@@ -140,6 +140,34 @@ The provider accepts all standard [Sonner](https://sonner.emilkowal.ski/) config
 | `expand` | `boolean` | `false` | Whether toasts should expand on hover. |
 | `richColors` | `boolean` | `true` | Enables colored backgrounds for success/error/w |
 
+### 📡 Integration with Observability (Sentry, Datadog, etc.)
+
+A common trap with React Error Boundaries is that they swallow errors to show the fallback UI, leaving your telemetry tools (like Sentry) completely blind. 
+
+CogniCatch solves this with the `onError` callback. You can keep your users happy with a graceful degradation UI while silently sending the full stack trace to your logging service in the background:
+
+```tsx
+import * as Sentry from "@sentry/react";
+import { AdaptiveErrorBoundary } from "@cognicatch/react";
+
+export function CheckoutFlow() {
+  return (
+    <AdaptiveErrorBoundary 
+      mode="manual"
+      severity="medium"
+      title="Payment Failed"
+      description="We couldn't process your card right now. Please try again."
+      // The UI stays up, and Sentry gets the log silently
+      onError={(error, errorInfo) => {
+        Sentry.captureException(error, { extra: errorInfo });
+      }}
+    >
+      <PaymentForm />
+    </AdaptiveErrorBoundary>
+  );
+}
+```
+
 ## 🚨 Troubleshooting
 
 ### Next.js Turbopack + pnpm (`Module not found: @radix-ui/*`)
