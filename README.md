@@ -190,4 +190,20 @@ node-linker=hoisted
 rm -rf node_modules .next pnpm-lock.yaml
 pnpm install
 ```
+## ❓ FAQ
+
+### Why not just build it myself with `react-error-boundary`?
+
+You absolutely can, and for very simple projects, you probably should! `react-error-boundary` is a fantastic primitive. However, building a *production-ready* error UI layer takes much more than just a `try/catch` wrapper. 
+
+CogniCatch handles the complex **edge cases** so you don't have to spend weeks reinventing the wheel:
+
+* **Telemetry Sync:** Custom boundaries often accidentally swallow errors. CogniCatch's `onError` guarantees your Sentry/Datadog logs stay intact while the UI degrades gracefully.
+* **PII Sanitization:** Out-of-the-box client-side scrubbing prevents sensitive user data from leaking into error messages.
+* **Accessibility (A11y) & Focus Traps:** Handling `Esc` keys, focus trapping in fatal modals, and avoiding z-index/portal conflicts across different CSS resets.
+* **Deduplication:** Preventing the UI from spamming 50 toasts if a component gets caught in a continuous re-render crash loop.
+* **AI-Powered UX (Pro):** Automatically translating raw stack traces into user-friendly, empathetic messages based on the component's context.
+
+Think of it like data fetching: you *could* use native `fetch()`, but you use React Query for the caching, deduplication, and edge cases. CogniCatch is that layer for error handling.
+
 *Built with precision by Matheus Lima.*
