@@ -140,6 +140,36 @@ The provider accepts all standard [Sonner](https://sonner.emilkowal.ski/) config
 | `expand` | `boolean` | `false` | Whether toasts should expand on hover. |
 | `richColors` | `boolean` | `true` | Enables colored backgrounds for success/error/w |
 
+### 📡 Integration with Observability (Sentry, Datadog, etc.)
+
+A common trap with React Error Boundaries is that they swallow errors to show the fallback UI, leaving your telemetry tools (like Sentry) completely blind. 
+
+CogniCatch solves this with the `onError` callback. You can keep your users happy with a graceful degradation UI while silently sending the full stack trace to your logging service in the background:
+
+```tsx
+import * as Sentry from "@sentry/react";
+import { AdaptiveErrorBoundary } from "@cognicatch/react";
+
+export function CheckoutFlow() {
+  return (
+    <AdaptiveErrorBoundary 
+      mode="manual"
+      severity="medium"
+      title="Payment Failed"
+      description="We couldn't process your card right now. Please try again."
+      // The UI stays up, and Sentry gets the log silently
+      onError={(error, errorInfo) => {
+        Sentry.captureException(error, { extra: errorInfo });
+      }}
+    >
+      <PaymentForm />
+    </AdaptiveErrorBoundary>
+  );
+}
+```
+
+Because onError exposes the raw (error, errorInfo), it is completely provider-agnostic. You can easily swap Sentry with Datadog (datadogLogs.logger.error()), LogRocket, Bugsnag, or your own custom backend endpoint.
+
 ## 🚨 Troubleshooting
 
 ### Next.js Turbopack + pnpm (`Module not found: @radix-ui/*`)
@@ -160,4 +190,20 @@ node-linker=hoisted
 rm -rf node_modules .next pnpm-lock.yaml
 pnpm install
 ```
+## ❓ FAQ
+
+### Why not just build it myself with `react-error-boundary`?
+
+You absolutely can, and for very simple projects, you probably should! `react-error-boundary` is a fantastic primitive. However, building a *production-ready* error UI layer takes much more than just a `try/catch` wrapper. 
+
+CogniCatch handles the complex **edge cases** so you don't have to spend weeks reinventing the wheel:
+
+* **Telemetry Sync:** Custom boundaries often accidentally swallow errors. CogniCatch's `onError` guarantees your Sentry/Datadog logs stay intact while the UI degrades gracefully.
+* **PII Sanitization:** Out-of-the-box client-side scrubbing prevents sensitive user data from leaking into error messages.
+* **Accessibility (A11y) & Focus Traps:** Handling `Esc` keys, focus trapping in fatal modals, and avoiding z-index/portal conflicts across different CSS resets.
+* **Deduplication:** Preventing the UI from spamming 50 toasts if a component gets caught in a continuous re-render crash loop.
+* **AI-Powered UX (Pro):** Automatically translating raw stack traces into user-friendly, empathetic messages based on the component's context.
+
+Think of it like data fetching: you *could* use native `fetch()`, but you use React Query for the caching, deduplication, and edge cases. CogniCatch is that layer for error handling.
+
 *Built with precision by Matheus Lima.*
