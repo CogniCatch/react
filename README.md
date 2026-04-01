@@ -33,6 +33,26 @@ import '@cognicatch/react/style.css';
 
 ### 3. Usage (Manual Mode)
 
+#### Generative UI Fallback (AIBoundary) ✨
+
+Safely intercept LLM hallucinations and salvage malformed JSON payloads without breaking your application. Perfect for AI wrappers and generative UI components.
+
+```typescript
+import { AIBoundary } from '@cognicatch/react';
+
+<AIBoundary
+  mode="manual"
+  title="AI Widget Error"
+  description="The AI generated an invalid component structure."
+  showRawData={true}
+  theme={{ primaryColor: "#f59e0b", textColor: "#ffffff" }}
+  rawPayload={{ tool: "chart", data: "I hallucinated this string instead of a valid JSON array!" }}
+  onRecover={() => resetChatStream()}
+>
+  <YourGenerativeUIComponent />
+</AIBoundary>
+```
+
 #### Adaptive Error Boundary
 
 Wrap any fragile component. If it crashes, CogniCatch renders a beautiful fallback.
@@ -118,6 +138,16 @@ In the Pro Tier, Artificial Intelligence takes the wheel. The library analyzes t
 ---
 
 ## 📖 API Reference
+
+### `<AIBoundary />` Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `mode` | `'manual' \| 'auto'` | `'auto'` | Use 'manual' for local/free tier. |
+| `showRawData` | `boolean` | `false` | Whether to display the raw malformed payload to the user in the UI. |
+| `theme` | `object` | `undefined` | Customize the recovery UI colors (`primaryColor`, `textColor`). |
+| `rawPayload` | `any` | `undefined` | The raw output from the LLM that caused the crash. |
+| `onRecover` | `() => void` | `undefined` | Callback triggered when the user clicks the recovery action. |
 
 ### `<AdaptiveErrorBoundary />` Props
 
