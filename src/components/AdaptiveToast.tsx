@@ -1,7 +1,7 @@
 import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react"
 import type React from "react"
 import { Toaster, toast } from "sonner"
-import { cn } from "../libs/utils"
+import { cn } from "../lib/utils"
 import type { ThemeOptions } from "../types"
 
 type AdaptiveToastProviderProps = React.ComponentProps<typeof Toaster> & {

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-31
+
+### Added
+- **Generative UI:** Introduced the `<AIBoundary />` component. A surgical error boundary engineered specifically to catch, contain, and gracefully handle React Server Component (RSC) crashes caused by LLM hallucinations or malformed JSON payloads.
+- **AI Observability:** Added a specialized `onError` callback to `<AIBoundary />` that captures the React error, the component stack, and the `rawPayload`. This perfectly bridges frontend UI crashes with backend AI telemetry tools (e.g., Sentry, Datadog LLM Observability).
+- **UX Recovery:** Implemented the `showRawData` property for AI fallbacks, providing a collapsible UI block that safely exposes the hallucinated raw JSON or text to the end-user when the visual widget fails to render.
+- **API Expansion:** Exported new TypeScript interfaces (`AIBoundaryProps`, `AutoAIBoundaryProps`, `ManualAIBoundaryProps`, `AIFallbackResponse`) to ensure strict typing for developers building AI-driven interfaces.
+
+### Changed
+- **DX / Testing:** Expanded the local development Playground to include a dedicated "Generative UI Fallback" simulator, allowing contributors to safely test AI widget crashes, recovery states, and theme overrides.
+
 ## [1.1.6] - 2026-03-26
 
 ### Added

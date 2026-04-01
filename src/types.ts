@@ -74,3 +74,59 @@ export const GenUIResponseSchema = z.object({
 })
 
 export type GenUIResponse = z.infer<typeof GenUIResponseSchema>
+
+// ==========================================
+// AI / GENERATIVE UI BOUNDARY PROPS
+// ==========================================
+
+export interface BaseAIBoundaryProps extends BaseAdaptiveProps {
+	children: React.ReactNode
+	rawPayload?: unknown
+	showRawData?: boolean
+	onError?: (
+		error: Error,
+		errorInfo: React.ErrorInfo,
+		rawPayload?: unknown,
+	) => void
+}
+
+export interface ManualAIBoundaryProps extends BaseAIBoundaryProps {
+	mode: "manual"
+	title?: string
+	description?: string
+}
+
+export interface AutoAIBoundaryProps extends BaseAIBoundaryProps {
+	mode: "auto"
+	apiKey?: string
+	apiUrl?: string
+	language?: string
+}
+
+export type AIBoundaryProps = ManualAIBoundaryProps | AutoAIBoundaryProps
+
+// ==========================================
+// ZOD SCHEMA: AI FALLBACK RESPONSE (MODO PRO)
+// ==========================================
+
+export const AIFallbackResponseSchema = z.object({
+	title: z
+		.string()
+		.describe("A short, user-friendly, translated title for the AI failure."),
+	description: z
+		.string()
+		.describe(
+			"A clear, empathetic, translated explanation. Tell the user the visual failed but the data is safe.",
+		),
+	formattedData: z
+		.string()
+		.describe(
+			"Take the hallucinated raw JSON data and format it into clean, readable Markdown (tables, lists). Do not include code blocks, just readable text/markdown.",
+		),
+	actionLabel: z
+		.string()
+		.nullable()
+		.describe("Short text for the recovery button (e.g., 'Try Again')."),
+})
+
+export type AIFallbackResponse = z.infer<typeof AIFallbackResponseSchema>

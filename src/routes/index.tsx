@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Bomb, Moon, Palette, Sun } from "lucide-react"
+import { Bomb, Bot, Moon, Palette, Sun } from "lucide-react"
 import { useEffect, useState } from "react"
 import { AdaptiveErrorBoundary } from "../components/AdaptiveErrorBoundary"
 import { AdaptiveFatalError } from "../components/AdaptiveFatalError"
 import { adaptiveToast } from "../components/AdaptiveToast"
+import { AIBoundary } from "../components/ai/AIBoundary"
 import type { ThemeOptions } from "../types"
 
 export const Route = createFileRoute("/")({
@@ -32,10 +33,36 @@ function BuggyWidget() {
 	)
 }
 
+function BuggyAIWidget() {
+	const [shouldCrash, setShouldCrash] = useState(false)
+
+	if (shouldCrash) {
+		throw new TypeError(
+			"data.map is not a function. Expected an array but got a string from the LLM.",
+		)
+	}
+
+	return (
+		<div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-emerald-300 dark:border-emerald-700/50 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/20">
+			<p className="text-sm text-emerald-700 dark:text-emerald-400 mb-4 text-center">
+				AI generated chart rendered successfully.
+			</p>
+			<button
+				type="button"
+				onClick={() => setShouldCrash(true)}
+				className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors shadow-md"
+			>
+				<Bot className="w-4 h-4" /> Simulate AI Hallucination
+			</button>
+		</div>
+	)
+}
+
 function Index() {
 	const [isFatalOpen, setIsFatalOpen] = useState(false)
 	const [isDarkMode, setIsDarkMode] = useState(false)
 	const [resetKey, setResetKey] = useState(0)
+	const [resetAIKey, setResetAIKey] = useState(0)
 
 	const [themeInput, setThemeInput] = useState<ThemeOptions>({
 		backgroundColor: "#0f172a",
@@ -49,6 +76,15 @@ function Index() {
 		if (isDarkMode) html.classList.add("dark")
 		else html.classList.remove("dark")
 	}, [isDarkMode])
+
+	const mockHallucinatedData = {
+		tool: "render_sales_chart",
+		parameters: {
+			title: "Q3 Sales Overview",
+			data: "July: $12k, August: $15k, September: $14k. I hope this helps!",
+			type: "bar",
+		},
+	}
 
 	return (
 		<div className="flex flex-col items-center min-h-[70vh] gap-8 max-w-2xl mx-auto transition-colors pb-12">
@@ -69,6 +105,7 @@ function Index() {
 				</button>
 			</div>
 
+			{/* STANDARD ERROR BOUNDARY TEST */}
 			<div className="w-full p-1 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl">
 				<div className="w-full bg-white dark:bg-zinc-950 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
 					<div className="mb-6">
@@ -86,14 +123,39 @@ function Index() {
 				</div>
 			</div>
 
+			{/* AI BOUNDARY TEST */}
+			<div className="w-full p-1 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl">
+				<div className="w-full bg-white dark:bg-zinc-950 p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+					<div className="mb-6">
+						<h2 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+							<Bot className="w-5 h-5 text-emerald-500" />
+							Generative UI Fallback
+						</h2>
+						<p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+							Simulates a React crash caused by an LLM hallucination.
+						</p>
+					</div>
+					<AIBoundary
+						mode="auto"
+						apiKey="sk_test_mock"
+						showRawData={true}
+						rawPayload={mockHallucinatedData}
+						onRecover={() => setResetAIKey((prev) => prev + 1)}
+						theme={{ primaryColor: "#10b981" }}
+					>
+						<BuggyAIWidget key={resetAIKey} />
+					</AIBoundary>
+				</div>
+			</div>
+
 			<div className="w-full border-t border-zinc-200 dark:border-zinc-800 pt-8 flex flex-col items-center gap-4">
 				<div className="flex flex-wrap justify-center gap-3">
 					<button
 						type="button"
 						onClick={() =>
 							adaptiveToast.success(
-								"Perfil Atualizado",
-								"As alterações foram salvas com sucesso.",
+								"Profile Updated",
+								"The changes have been saved successfully.",
 							)
 						}
 						className="px-3 py-1.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-md text-sm hover:scale-105 transition-transform"
@@ -104,8 +166,8 @@ function Index() {
 						type="button"
 						onClick={() =>
 							adaptiveToast.warning(
-								"Atenção",
-								"Sua assinatura expira em 3 dias.",
+								"Attention",
+								"Your subscription expires in 3 days.",
 							)
 						}
 						className="px-3 py-1.5 bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 rounded-md text-sm hover:scale-105 transition-transform"
@@ -129,7 +191,7 @@ function Index() {
 						White-label support
 					</h2>
 					<p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-						Simulate how the Toast adapts to other companies’ Design Systems.
+						Simulate how the Toast adapts to other companies' Design Systems.
 					</p>
 				</div>
 
@@ -227,7 +289,7 @@ function Index() {
 					<div className="flex flex-col gap-1.5">
 						<label
 							className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
-							htmlFor="#backgroundPrimaryColorInput"
+							htmlFor="#backgroundBorderRadiusInput"
 						>
 							Border Radius
 						</label>
@@ -261,8 +323,8 @@ function Index() {
 			<AdaptiveFatalError
 				isOpen={isFatalOpen}
 				onOpenChange={setIsFatalOpen}
-				title="Ocorreu um erro crítico"
-				description="Nossos servidores falharam."
+				title="A critical error occurred"
+				description="Our servers encountered an unexpected issue."
 			/>
 		</div>
 	)

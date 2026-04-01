@@ -1,5 +1,5 @@
 import { AlertCircle, AlertTriangle } from "lucide-react"
-import { cn } from "../libs/utils"
+import { cn } from "../lib/utils"
 import type { ThemeOptions } from "../types"
 
 interface BannerAction {

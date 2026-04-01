@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog"
 import { AlertOctagon, ExternalLink, RefreshCcw } from "lucide-react"
 import { useEffect, useState } from "react"
-import { cn } from "../libs/utils"
+import { cn } from "../lib/utils"
 import type { ThemeOptions } from "../types"
 
 export interface AdaptiveFatalErrorProps {

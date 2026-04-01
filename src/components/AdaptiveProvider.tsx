@@ -6,7 +6,7 @@ import {
 	useMemo,
 } from "react"
 import { toast } from "sonner"
-import { sanitizeErrorContext } from "../libs/pii-sanitizer"
+import { sanitizeErrorContext } from "../lib/pii-sanitizer"
 export interface CaptureAsyncOptions {
 	handleUserBilling?: boolean
 }

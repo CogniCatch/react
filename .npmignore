@@ -1,0 +1,17 @@
+.env
+.env.*
+*.pem
+*.key
+
+
+src/
+tests/
+playground/
+
+
+.vscode/
+.github/
+biome.json
+tsconfig.json
+vite.config.ts
+vite.config.build.ts

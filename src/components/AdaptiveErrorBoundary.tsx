@@ -1,5 +1,5 @@
 import React, { Component, type ErrorInfo, type ReactNode } from "react"
-import { sanitizeErrorContext } from "../libs/pii-sanitizer"
+import { sanitizeErrorContext } from "../lib/pii-sanitizer"
 import type {
 	AdaptiveErrorProps,
 	AutoModeProps,
@@ -208,7 +208,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 			})
 
 			if (!response.ok) {
-				throw new Error(`SaaS API returned ${response.status}`)
+				throw new Error(`cognicatch API returned ${response.status}`)
 			}
 
 			const aiResult = await response.json()
