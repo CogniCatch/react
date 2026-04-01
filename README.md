@@ -143,7 +143,7 @@ In the Pro Tier, Artificial Intelligence takes the wheel. The library analyzes t
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `mode` | `'manual' \| 'auto'` | `'auto'` | Use 'manual' for local/free tier. |
+| `mode` | `'manual' \| 'auto'` | `'manual'` | Use 'manual' for local/free tier. |
 | `showRawData` | `boolean` | `false` | Whether to display the raw malformed payload to the user in the UI. |
 | `theme` | `object` | `undefined` | Customize the recovery UI colors (`primaryColor`, `textColor`). |
 | `rawPayload` | `any` | `undefined` | The raw output from the LLM that caused the crash. |
