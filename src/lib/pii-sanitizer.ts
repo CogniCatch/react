@@ -1,15 +1,15 @@
 /**
  * pii-sanitizer.ts
  *
- * Strips potential PII from error context before it ever reaches the LLM.
+ * Strips potential PII from error context before it ever reaches the LLM or Sentry.
  * This is the Zero-PII contract: raw errors NEVER leave the boundary unsanitized.
- * * AUDITED FOR:
- * 1. Client-Side Performance (Main Thread blocking prevention)
- * 2. ReDoS (Regular Expression Denial of Service)
- * 3. SPA Relative Routing Support
+ * * * AUDITED FOR:
+ * 1. Client-Side Performance (Main Thread blocking prevention via max limits)
+ * 2. ReDoS (Flattened Regexes to prevent catastrophic backtracking)
+ * 3. Deep Object Sanitization (Safe Payload stripping)
  */
 
-// ─── Regex Patterns (Hardened) ────────────────────────────────────────────────
+// ─── Regex Patterns (Hardened against ReDoS) ──────────────────────────────────
 
 const PII_PATTERNS: Array<{
 	name: string
@@ -39,20 +39,20 @@ const PII_PATTERNS: Array<{
 	},
 	{
 		name: "phone",
-		pattern: /(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,5}[-.\s]?\d{4}\b/g,
+		pattern:
+			/\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{4}\b/g,
 		replacement: "[PHONE_REDACTED]",
 	},
 	{
 		name: "ipv4",
-		pattern:
-			/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g,
+		pattern: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
 		replacement: "[IP_REDACTED]",
 	},
 	{
 		name: "url_query_params",
 		pattern:
-			/([?&](?:token|key|secret|auth|email|user|access_token|refresh_token|api_key|apikey|password|passwd|pwd)=[^&\s]+)/gi,
-		replacement: "[PARAM_REDACTED]",
+			/([?&](?:token|key|secret|auth|email|user|access_token|refresh_token|api_key|apikey|password|passwd|pwd)=)[^&\s]+/gi,
+		replacement: "$1[PARAM_REDACTED]",
 	},
 	{
 		name: "ssn",
@@ -61,7 +61,7 @@ const PII_PATTERNS: Array<{
 	},
 	{
 		name: "credit_card",
-		pattern: /\b(?:\d[ -]?){12,18}\d\b/g,
+		pattern: /\b(?:\d{4}[ -]?){3}\d{4}\b|\b\d{13,19}\b/g,
 		replacement: "[CC_REDACTED]",
 	},
 ]
@@ -79,6 +79,27 @@ export function sanitizeText(input: string, maxLength: number = 1000): string {
 	return PII_PATTERNS.reduce((text, { pattern, replacement }) => {
 		return text.replace(pattern, replacement)
 	}, sanitized)
+}
+
+export function sanitizePayload(payload: unknown): unknown {
+	if (payload === null || payload === undefined) return payload
+
+	try {
+		if (typeof payload === "string") {
+			return sanitizeText(payload, 5000)
+		}
+
+		const stringified = JSON.stringify(payload)
+		const sanitizedString = sanitizeText(stringified, 10000)
+
+		try {
+			return JSON.parse(sanitizedString)
+		} catch {
+			return sanitizedString
+		}
+	} catch (_e) {
+		return "[CIRCULAR_PAYLOAD_REDACTED]"
+	}
 }
 
 export interface SanitizedErrorContext {
@@ -112,10 +133,18 @@ export function sanitizeErrorContext(
 	}
 
 	let componentName = raw.componentName
+
 	if (!componentName && raw.componentStack) {
-		const firstLine = raw.componentStack.split("\n")[1] ?? ""
-		const match = /at (\w+)/.exec(firstLine)
-		componentName = match?.[1]
+		const stackLines = raw.componentStack
+			.split("\n")
+			.map((line) => line.trim())
+			.filter(Boolean)
+
+		const targetLine: string = stackLines[0] || ""
+
+		const match = /^at (\w+)/.exec(targetLine)
+
+		componentName = match?.[1] || "UnknownComponent"
 	}
 
 	return {

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-04-06
+
+### Changed
+- **Security:** Hardened data isolation within the `<AIBoundary />` `onError` callback. The SDK now applies deep Zero-PII sanitization directly to the native `Error.stack` and React `ErrorInfo` objects prior to executing third-party logging callbacks, ensuring strict client-side privacy compliance.
+- **Security:** Optimized regex parsing patterns within the internal PII sanitizer to proactively mitigate potential ReDoS (Regular Expression Denial of Service) edge cases.
+- **Build System:** Removed deprecated `baseUrl` from `tsconfig.json` to ensure future-proof compatibility with the upcoming TypeScript 7.0 compiler.
+
+### Fixed
+- **Core:** Resolved internal TypeScript type definitions and edge-case syntax parsing issues when extracting React component stack traces.
+
 ## [1.2.0] - 2026-03-31
 
 ### Added

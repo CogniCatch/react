@@ -1,6 +1,10 @@
 import React, { Component, type ErrorInfo } from "react"
 import { AdaptiveContext } from "../../components/AdaptiveProvider"
-import { sanitizeErrorContext } from "../../lib/pii-sanitizer"
+import {
+	sanitizeErrorContext,
+	sanitizePayload,
+	sanitizeText,
+} from "../../lib/pii-sanitizer"
 import type {
 	AIBoundaryProps,
 	AIFallbackResponse,
@@ -57,10 +61,27 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		if (this.state.hasCrashedFallback) return
 
-		// 1. Trigger the Observability callback
+		const safeContext = sanitizeErrorContext({
+			message: error.message,
+			componentStack: errorInfo.componentStack || undefined,
+		})
+
+		const safeError = new Error(safeContext.message)
+		safeError.name = error.name
+		safeError.stack = error.stack ? sanitizeText(error.stack, 2000) : undefined
+
+		const safeErrorInfo: ErrorInfo = {
+			...errorInfo,
+			componentStack: errorInfo.componentStack
+				? sanitizeText(errorInfo.componentStack, 2000)
+				: undefined,
+		}
+
+		const safePayload = sanitizePayload(this.props.rawPayload)
+
 		if (this.props.onError) {
 			try {
-				this.props.onError(error, errorInfo, this.props.rawPayload)
+				this.props.onError(safeError, safeErrorInfo, safePayload)
 			} catch (callbackError) {
 				console.error(
 					"CogniCatch: External onError callback failed.",
