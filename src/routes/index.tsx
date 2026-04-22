@@ -62,7 +62,7 @@ function Index() {
 	const [isFatalOpen, setIsFatalOpen] = useState(false)
 	const [isDarkMode, setIsDarkMode] = useState(false)
 	const [resetKey, setResetKey] = useState(0)
-	const [resetAIKey, setResetAIKey] = useState(0)
+	const [resetAIKey] = useState(0)
 
 	const [themeInput, setThemeInput] = useState<ThemeOptions>({
 		backgroundColor: "#0f172a",
