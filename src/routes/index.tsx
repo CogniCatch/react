@@ -116,7 +116,7 @@ function Index() {
 					<AdaptiveErrorBoundary
 						mode="auto"
 						apiKey={import.meta.env.VITE_OPENAI_API_KEY}
-						onRecover={() => setResetKey((prev) => prev + 1)}
+						onReset={() => setResetKey((prev) => prev + 1)}
 					>
 						<BuggyWidget key={resetKey} />
 					</AdaptiveErrorBoundary>
@@ -140,7 +140,7 @@ function Index() {
 						apiKey="sk_test_mock"
 						showRawData={true}
 						rawPayload={mockHallucinatedData}
-						onRecover={() => setResetAIKey((prev) => prev + 1)}
+						resetKeys={[resetKey]}
 						theme={{ primaryColor: "#10b981" }}
 					>
 						<BuggyAIWidget key={resetAIKey} />
