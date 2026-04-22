@@ -67,7 +67,7 @@ import { trace } from '@opentelemetry/api'; // Or your Sentry/Datadog instance
   showRawData={true}
   theme={{ primaryColor: "#f59e0b", textColor: "#ffffff" }}
   rawPayload={{ tool: "chart", data: "I hallucinated this string instead of a valid JSON array!" }}
-  onRecover={() => resetChatStream()}
+  onReset={() => resetChatStream()}
   // CogniCatch automatically scrubs PII from the error and stack trace!
   onError={(safeError, safeErrorInfo, safePayload) => {
     tracer.startActiveSpan('CogniCatch.fallback', (span) => {
@@ -93,7 +93,7 @@ import { AdaptiveErrorBoundary } from '@cognicatch/react';
   severity="medium"
   title="Component Error"
   description="Error description"
-  onRecover={() => window.location.reload()}
+  onReset={() => window.location.reload()}
   onError={(error, errorInfo) => {
     // Silently log to Sentry while CogniCatch handles the UI
     Sentry.captureException(error, { extra: errorInfo });
