@@ -6,7 +6,7 @@ interface AIFallbackUIProps {
 	title: string
 	description: string
 	actionLabel?: string | null
-	onRecover: () => void
+	onReset: (...args: any[]) => void
 	theme?: ThemeOptions
 	rawData?: string
 }
@@ -15,7 +15,7 @@ export const AIFallbackUI = ({
 	title,
 	description,
 	actionLabel,
-	onRecover,
+	onReset,
 	theme,
 	rawData,
 }: AIFallbackUIProps) => {
@@ -55,7 +55,7 @@ export const AIFallbackUI = ({
 					)}
 					<button
 						type="button"
-						onClick={onRecover}
+						onClick={onReset}
 						style={{ backgroundColor: theme?.primaryColor || undefined }}
 						className="flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
 					>
@@ -65,7 +65,7 @@ export const AIFallbackUI = ({
 				</div>
 			</div>
 
-			{/* Expansible Raw Data / Markdown Area */}
+			{/* Expansible Raw Data Area */}
 			{isExpanded && rawData && (
 				<div className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/50 p-4">
 					<pre className="text-xs text-zinc-700 dark:text-zinc-300 font-mono whitespace-pre-wrap break-words max-h-60 overflow-y-auto custom-scrollbar">

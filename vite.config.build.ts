@@ -19,7 +19,7 @@ export default defineConfig({
     emptyOutDir: true,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'AdaptiveErrorUI',
+      name: 'CogniCatchReact',
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },
@@ -37,7 +37,8 @@ export default defineConfig({
       ],
       output: { 
         globals: { react: 'React', 'react-dom': 'ReactDOM' },
-        assetFileNames: "cognicatch-react.[ext]"
+        assetFileNames: "cognicatch-react.[ext]",
+        banner: '"use client";'
       }
     }
   }

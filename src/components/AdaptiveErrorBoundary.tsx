@@ -27,11 +27,11 @@ interface State {
 }
 
 interface StaticFallbackProps {
-	onRecover: () => void
+	onReset: () => void
 	theme?: "light" | "dark" | ThemeOptions
 }
 
-const StaticFallback = ({ onRecover, theme }: StaticFallbackProps) => {
+const StaticFallback = ({ onReset, theme }: StaticFallbackProps) => {
 	const isDark = theme === "dark"
 
 	return (
@@ -65,7 +65,7 @@ const StaticFallback = ({ onRecover, theme }: StaticFallbackProps) => {
 					</p>
 				</div>
 				<button
-					onClick={onRecover}
+					onClick={onReset}
 					type="button"
 					style={{
 						backgroundColor: (theme as ThemeOptions)?.primaryColor || undefined,
@@ -76,6 +76,12 @@ const StaticFallback = ({ onRecover, theme }: StaticFallbackProps) => {
 				</button>
 			</div>
 		</div>
+	)
+}
+
+const changedArray = (a: unknown[] = [], b: unknown[] = []) => {
+	return (
+		a.length !== b.length || a.some((item, index) => !Object.is(item, b[index]))
 	)
 }
 
@@ -108,6 +114,19 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 		return { hasError: true, error }
 	}
 
+	componentDidUpdate(prevProps: Props, prevState: State) {
+		const { error } = this.state
+		const { resetKeys } = this.props
+
+		if (
+			error !== null &&
+			prevState.error !== null &&
+			changedArray(prevProps.resetKeys, resetKeys)
+		) {
+			this.resetBoundary()
+		}
+	}
+
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		if (this.state.hasCrashedFallback) return
 
@@ -129,7 +148,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 				this.props.title,
 				this.props.description,
 				this.props.actionLabel ?? undefined,
-				this.handleRecover,
+				this.resetBoundary,
 			)
 		}
 
@@ -219,7 +238,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 						aiResult.title,
 						aiResult.description,
 						aiResult.actionLabel ?? undefined,
-						this.handleRecover,
+						this.resetBoundary,
 					)
 					this.setState({ isProcessingAuto: false, aiData: aiResult })
 				} else {
@@ -243,7 +262,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 		}
 	}
 
-	handleRecover = () => {
+	resetBoundary = (...args: any[]) => {
 		if (this._isMounted) {
 			this.setState({
 				hasError: false,
@@ -252,18 +271,15 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 				hasCrashedFallback: false,
 			})
 		}
-		if (this.props.onRecover) {
-			this.props.onRecover()
+		if (this.props.onReset) {
+			this.props.onReset(...args)
 		}
 	}
 
 	render() {
 		if (this.state.hasCrashedFallback) {
 			return (
-				<StaticFallback
-					onRecover={this.handleRecover}
-					theme={this.props.theme}
-				/>
+				<StaticFallback onReset={this.resetBoundary} theme={this.props.theme} />
 			)
 		}
 
@@ -282,7 +298,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 						<AdaptiveFatalError
 							isOpen={true}
 							onOpenChange={(open) => {
-								if (!open) this.handleRecover()
+								if (!open) this.resetBoundary()
 							}}
 							title={title}
 							description={description}
@@ -299,7 +315,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 							description={description}
 							primaryAction={
 								actionLabel
-									? { label: actionLabel, onClick: this.handleRecover }
+									? { label: actionLabel, onClick: this.resetBoundary }
 									: undefined
 							}
 							theme={theme}
@@ -335,7 +351,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 							<AdaptiveFatalError
 								isOpen={true}
 								onOpenChange={(open) => {
-									if (!open) this.handleRecover()
+									if (!open) this.resetBoundary()
 								}}
 								title={title}
 								description={description}
@@ -352,7 +368,7 @@ export class AdaptiveErrorBoundary extends Component<Props, State> {
 								description={description}
 								primaryAction={
 									actionLabel
-										? { label: actionLabel, onClick: this.handleRecover }
+										? { label: actionLabel, onClick: this.resetBoundary }
 										: undefined
 								}
 								theme={theme}

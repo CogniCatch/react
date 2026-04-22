@@ -21,6 +21,12 @@ const safeStringify = (data: unknown): string => {
 	}
 }
 
+const changedArray = (a: unknown[] = [], b: unknown[] = []) => {
+	return (
+		a.length !== b.length || a.some((item, index) => !Object.is(item, b[index]))
+	)
+}
+
 interface State {
 	hasError: boolean
 	error: Error | null
@@ -56,6 +62,19 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 
 	static getDerivedStateFromError(error: Error): Partial<State> {
 		return { hasError: true, error }
+	}
+
+	componentDidUpdate(prevProps: AIBoundaryProps, prevState: State) {
+		const { error } = this.state
+		const { resetKeys } = this.props
+
+		if (
+			error !== null &&
+			prevState.error !== null &&
+			changedArray(prevProps.resetKeys, resetKeys)
+		) {
+			this.resetBoundary()
+		}
 	}
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -182,7 +201,7 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 		}
 	}
 
-	handleRecover = () => {
+	resetBoundary = (...args: any[]) => {
 		if (this._isMounted) {
 			this.setState({
 				hasError: false,
@@ -191,8 +210,9 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 				hasCrashedFallback: false,
 			})
 		}
-		if (this.props.onRecover) {
-			this.props.onRecover()
+
+		if (this.props.onReset) {
+			this.props.onReset(...args)
 		}
 	}
 
@@ -203,7 +223,7 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 					Critical Error rendering AI Fallback UI.
 					<button
 						type="button"
-						onClick={this.handleRecover}
+						onClick={this.resetBoundary}
 						className="ml-4 underline font-medium"
 					>
 						Retry
@@ -236,7 +256,7 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 						title={this.state.aiData.title}
 						description={this.state.aiData.description}
 						actionLabel={this.state.aiData.actionLabel}
-						onRecover={this.handleRecover}
+						onReset={this.resetBoundary}
 						theme={theme}
 						rawData={showRawData ? this.state.aiData.formattedData : undefined}
 					/>
@@ -256,7 +276,7 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 						"An error occurred while generating this interface."
 					}
 					actionLabel="Try Again"
-					onRecover={this.handleRecover}
+					onReset={this.resetBoundary}
 					theme={theme}
 					rawData={safeRawData}
 				/>

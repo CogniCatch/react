@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2026-04-22
+
+### Added
+- **Core:** Added the `resetKeys` array property to both `<AIBoundary />` and `<AdaptiveErrorBoundary />`. This enables automatic error recovery when specific state variables change, mirroring the standard behavior of the industry-standard `react-error-boundary`.
+
+### Changed
+- **API (Breaking Change):** Renamed the `onRecover` callback prop to `onReset` across all public interfaces and components. This establishes CogniCatch as a true "Drop-in Replacement" for developers migrating from standard error boundary libraries.
+- **Security & UX:** Modified the internal Zod Schema (`AIFallbackResponseSchema`) for Pro mode. The AI is now strictly instructed to return pure, indented JSON strings instead of Markdown tables. This completely eliminates XSS vulnerabilities related to dynamic Markdown parsing and keeps the package bundle size ultra-light by removing the need for external AST parsers.
+
+### Fixed
+- **Types:** Resolved cascading type mismatches between container boundaries and internal presentation components (`AIFallbackUI`, `StaticFallback`).
+
 ## [1.2.1] - 2026-04-06
 
 ### Changed

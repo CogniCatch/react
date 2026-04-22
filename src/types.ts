@@ -12,7 +12,8 @@ export interface ThemeOptions {
 
 export interface BaseAdaptiveProps {
 	theme?: ThemeOptions
-	onRecover?: () => void
+	onReset?: (...args: any[]) => void
+	resetKeys?: unknown[]
 	className?: string
 }
 
@@ -121,7 +122,7 @@ export const AIFallbackResponseSchema = z.object({
 	formattedData: z
 		.string()
 		.describe(
-			"Take the hallucinated raw JSON data and format it into clean, readable Markdown (tables, lists). Do not include code blocks, just readable text/markdown.",
+			"Extract the raw data values from the hallucinated payload and format them as a clean, properly indented JSON string. Do NOT use markdown formatting, tables, or explanation text. Only return the pure stringified JSON.",
 		),
 	actionLabel: z
 		.string()
