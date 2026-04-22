@@ -1,12 +1,31 @@
-# CogniCatch React
+<div align="center">
+  <h1>CogniCatch React</h1>
+  <p><strong>The Zero-PII Error Boundary for AI-Driven React Applications.</strong></p>
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7973b59c-257c-4994-9e65-4416bf6d8167" />
+  [![npm version](https://img.shields.io/npm/v/@cognicatch/react.svg?style=flat-square&color=f97316)](https://www.npmjs.com/package/@cognicatch/react)
+  [![Build Status](https://img.shields.io/github/actions/workflow/status/CogniCatch/react/ci.yml?branch=main&style=flat-square)](https://github.com/CogniCatch/react/actions)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+  
+  <br />
+  <a href="https://cognicatch.dev/docs">Documentation</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://cognicatch.dev/#playground">Live Playground</a>
+</div>
 
+<br />
 
-[![npm version](https://img.shields.io/npm/v/@cognicatch/react.svg?style=flat-square&color=f59e0b)](https://www.npmjs.com/package/@cognicatch/react)
-[![License: MIT](https://img.shields.io/badge/License-MIT-zinc.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+Stop losing users to the *White Screen of Death* caused by LLM hallucinations. **CogniCatch** is a production-grade infrastructure library that intercepts runtime crashes, malformed AI JSON payloads, and API failures, transforming them into elegant, user-friendly recovery interfaces while securely routing sanitized telemetry to your observability backend.
 
-**Stop losing users to the White Screen of Death.** CogniCatch is a production-grade library that intercepts runtime crashes and API failures, transforming them into elegant, user-friendly recovery interfaces.
+---
+
+## 🚀 Why CogniCatch? (The Enterprise Advantage)
+
+While standard error boundaries like `react-error-boundary` are great primitives, they lack native understanding of Generative UI payloads and often swallow critical telemetry data. CogniCatch is built for the modern AI stack:
+
+* 🤖 **GenUI Fallbacks:** Surgically catch LLM hallucinations (e.g., dropped brackets, malformed JSONs) without crashing the entire React tree.
+* 🔒 **Zero-PII Middleware (Client-Side Scrubbing):** Built for GDPR/HIPAA compliance. Emails, JWTs, API Keys, and Credit Cards are aggressively redacted in the browser's memory *before* reaching your logs.
+* 📡 **Vendor-Agnostic OTLP Support:** Forward clean, sanitized traces seamlessly to Sentry, Datadog, Dynatrace, or any OpenTelemetry-compatible backend.
+* ♿ **A11y & Focus Traps:** Flawless accessibility handling for critical modal crashes, avoiding portal/z-index conflicts.
 
 ---
 
@@ -39,6 +58,7 @@ Safely intercept LLM hallucinations and salvage malformed JSON payloads without 
 
 ```typescript
 import { AIBoundary } from '@cognicatch/react';
+import { trace } from '@opentelemetry/api'; // Or your Sentry/Datadog instance
 
 <AIBoundary
   mode="manual"
@@ -48,7 +68,15 @@ import { AIBoundary } from '@cognicatch/react';
   theme={{ primaryColor: "#f59e0b", textColor: "#ffffff" }}
   rawPayload={{ tool: "chart", data: "I hallucinated this string instead of a valid JSON array!" }}
   onRecover={() => resetChatStream()}
->
+  // CogniCatch automatically scrubs PII from the error and stack trace!
+  onError={(safeError, safeErrorInfo, safePayload) => {
+    tracer.startActiveSpan('CogniCatch.fallback', (span) => {
+      span.setAttribute('react.componentStack', safeErrorInfo.componentStack);
+      span.recordException(safeError);
+      span.end();
+    });
+  }}
+ >
   <YourGenerativeUIComponent />
 </AIBoundary>
 ```
@@ -109,67 +137,9 @@ function handleSave() {
 }
 ```
 
-## 🔒 Enterprise-Grade Security (Zero-PII)
+## 📚 Documentation & API Reference
 
-Built for GDPR/HIPAA compliance, our **Client-Side Sanitizer** ensures sensitive data never leaves the browser. 
-
-* **Sandboxed:** Error Boundaries cannot read your component's internal state or props.
-* **Aggressive Redaction:** Emails, JWTs, API Keys, and Credit Cards are instantly replaced with `[REDACTED]` tags in the browser's memory before any log is processed.
-* **The Result:** The AI and your servers only receive the structural skeleton of the crash (e.g., *"Payment failed for user [EMAIL_REDACTED] using [JWT_REDACTED]"*), keeping your company safe from data leaks.
-
-## 🛠️ Tech Stack
-- **Core:** React 18 / 19 (Strict Mode Ready)
-- **Styling:** Tailwind CSS v4 (Isolated/Zero-conflict)
-- **Primitives:** Radix UI & Sonner (Accessible & High-performance)
-
----
-
-## ✨ The GenUI Engine (Auto Mode - Coming Soon)
-
-In the Pro Tier, Artificial Intelligence takes the wheel. The library analyzes the technical stack trace and generates an empathetic recovery UI, automatically translated to the user's native language.
-
-### Upcoming Pro Features:
-- **Cloud Telemetry:** Track crashes in real-time on your CogniCatch Dashboard.
-- **Async Capture:** `captureAsyncError(error)` hook for seamless API failure handling.
-- **Domain Whitelisting:** Secure your production environment.
-
-👉 **[Join the Early Adopter Waitlist](https://cognicatch.dev/dashboard)**.
-
----
-
-## 📖 API Reference
-
-### `<AIBoundary />` Props
-
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `mode` | `'manual' \| 'auto'` | `'manual'` | Use 'manual' for local/free tier. |
-| `showRawData` | `boolean` | `false` | Whether to display the raw malformed payload to the user in the UI. |
-| `theme` | `object` | `undefined` | Customize the recovery UI colors (`primaryColor`, `textColor`). |
-| `rawPayload` | `any` | `undefined` | The raw output from the LLM that caused the crash. |
-| `onRecover` | `() => void` | `undefined` | Callback triggered when the user clicks the recovery action. |
-
-### `<AdaptiveErrorBoundary />` Props
-
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `mode` | `'manual' \| 'auto'` | `'manual'` | Use 'manual' for local/free tier. |
-| `severity` | `'low' \| 'medium' \| 'high'` | `'medium'` | Defines the UI type (Toast, Banner, or Modal). |
-| `title` | `string` | `undefined` | Fallback title (Manual mode only). |
-| `description` | `string` | `undefined` | Fallback description message (Manual mode only). |
-| `onRecover` | `() => void` | `undefined` | Callback triggered by the action button. |
-| `onError` | `(error: Error, errorInfo: ErrorInfo) => void` | `undefined` | Callback to silently log errors to external services (e.g., Sentry, Datadog) without breaking the fallback UI. |
-
-### `<AdaptiveToastProvider />` Props
-
-The provider accepts all standard [Sonner](https://sonner.emilkowal.ski/) configurations to customize the behavior globally.
-
-| Prop | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `position` | `string` | `'top-right'` | Position of the toasts (top-left, top-center, etc). |
-| `expand` | `boolean` | `false` | Whether toasts should expand on hover. |
-| `richColors` | `boolean` | `true` | Enables colored backgrounds for success/error/w |
-
+For the full API reference, theming options, and advanced guides (like the Zero-PII architecture deep dive), visit the Official [Documentation](https://cognicatch.dev/docs).
 ### 📡 Integration with Observability (Sentry, Datadog, etc.)
 
 A common trap with React Error Boundaries is that they swallow errors to show the fallback UI, leaving your telemetry tools (like Sentry) completely blind. 
