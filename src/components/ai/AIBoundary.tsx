@@ -109,7 +109,16 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 			}
 		}
 
-		// 2. Handle Auto Mode Translation & Formatting
+		// 2. Local Usage Report (Free Tier - Manual Mode)
+		if (this.props.mode === "manual" && this.props.onUsageReport && this.props.llmUsage) {
+			try {
+				this.props.onUsageReport(this.props.llmUsage)
+			} catch (reportError) {
+				console.error("CogniCatch: External onUsageReport callback failed.", reportError)
+			}
+		}
+
+		// 3. Handle Auto Mode Translation & Formatting (Pro Tier)
 		if (this.props.mode === "auto") {
 			if (this._isMounted) {
 				this.setState({ isProcessingAuto: true })
@@ -147,12 +156,15 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 						},
 					})
 				}
+
+				if (this.props.onUsageReport && this.props.llmUsage) {
+					this.props.onUsageReport(this.props.llmUsage)
+				}
 			}, 1000)
 			return
 		}
 
 		try {
-			// Sanitize React Error Context (We DO NOT sanitize rawPayload here, the Edge does it)
 			const rawContext = {
 				message: error.message,
 				componentStack: errorInfo.componentStack || undefined,
@@ -175,6 +187,7 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 						: "No stack",
 					rawPayload: this.props.rawPayload,
 					language: finalLanguage,
+					llmUsage: this.props.llmUsage,
 				}),
 			})
 
@@ -184,6 +197,10 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 
 			if (this._isMounted) {
 				this.setState({ isProcessingAuto: false, aiData: aiResult })
+			}
+
+			if (this.props.onUsageReport) {
+				this.props.onUsageReport(aiResult.finOps || this.props.llmUsage || {})
 			}
 		} catch (e) {
 			console.error("CogniCatch AI Request failed:", e)
@@ -197,6 +214,10 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 						actionLabel: "Retry",
 					},
 				})
+			}
+
+			if (this.props.onUsageReport && this.props.llmUsage) {
+				this.props.onUsageReport(this.props.llmUsage)
 			}
 		}
 	}

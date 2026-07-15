@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2026-07-15
+
+### Added
+- **LLM FinOps:** Introduced `llmUsage` property and `onUsageReport` callback to `<AIBoundary />`. This enables developers to track token consumption and attribute AI hallucination costs directly to their observability tools (e.g., Datadog, Sentry) without modifying their existing UI logic.
+- **Observability:** Enhanced the internal pipeline to support "Enriched FinOps" data in the Pro tier, allowing for automated USD cost calculations on the Edge without adding client-side bundle weight.
+
+### Changed
+- **Architecture:** Refactored `<AIBoundary />` to implement an asynchronous delegation pattern, ensuring that FinOps metric collection does not block critical error rendering or logging callbacks.
+
 ## [1.2.2] - 2026-04-22
 
 ### Added

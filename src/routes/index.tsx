@@ -142,6 +142,17 @@ function Index() {
 						rawPayload={mockHallucinatedData}
 						resetKeys={[resetKey]}
 						theme={{ primaryColor: "#10b981" }}
+						llmUsage={{
+							promptTokens: 150,
+							completionTokens: 50,
+							totalTokens: 200
+						}}
+						onUsageReport={(metrics) => {
+							console.group("FinOps Report Captured");
+							console.log("Total Tokens Consumed:", metrics.totalTokens);
+							console.log("Estimated USD Wasted:", metrics.wastedUsd || "Calculating on Edge...");
+							console.groupEnd();
+						}}
 					>
 						<BuggyAIWidget key={resetAIKey} />
 					</AIBoundary>

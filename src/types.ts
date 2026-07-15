@@ -77,6 +77,20 @@ export const GenUIResponseSchema = z.object({
 export type GenUIResponse = z.infer<typeof GenUIResponseSchema>
 
 // ==========================================
+// 6. FINOPS & USAGE METRICS (NOVO)
+// ==========================================
+
+export type LLMUsage = {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+}
+
+export type UsageMetrics = LLMUsage & {
+    wastedUsd?: number; 
+}
+
+// ==========================================
 // AI / GENERATIVE UI BOUNDARY PROPS
 // ==========================================
 
@@ -89,6 +103,8 @@ export interface BaseAIBoundaryProps extends BaseAdaptiveProps {
 		errorInfo: React.ErrorInfo,
 		rawPayload?: unknown,
 	) => void
+	llmUsage?: LLMUsage
+    onUsageReport?: (metrics: UsageMetrics) => void
 }
 
 export interface ManualAIBoundaryProps extends BaseAIBoundaryProps {
@@ -110,6 +126,13 @@ export type AIBoundaryProps = ManualAIBoundaryProps | AutoAIBoundaryProps
 // ZOD SCHEMA: AI FALLBACK RESPONSE (MODO PRO)
 // ==========================================
 
+const UsageMetricsSchema = z.object({
+    promptTokens: z.number().optional(),
+    completionTokens: z.number().optional(),
+    totalTokens: z.number().optional(),
+    wastedUsd: z.number().optional(),
+})
+
 export const AIFallbackResponseSchema = z.object({
 	title: z
 		.string()
@@ -128,6 +151,7 @@ export const AIFallbackResponseSchema = z.object({
 		.string()
 		.nullable()
 		.describe("Short text for the recovery button (e.g., 'Try Again')."),
+	finOps: UsageMetricsSchema.optional().describe("Enriched metrics containing the calculated USD waste."),
 })
 
 export type AIFallbackResponse = z.infer<typeof AIFallbackResponseSchema>
