@@ -110,11 +110,18 @@ export class AIBoundary extends Component<AIBoundaryProps, State> {
 		}
 
 		// 2. Local Usage Report (Free Tier - Manual Mode)
-		if (this.props.mode === "manual" && this.props.onUsageReport && this.props.llmUsage) {
+		if (
+			this.props.mode === "manual" &&
+			this.props.onUsageReport &&
+			this.props.llmUsage
+		) {
 			try {
 				this.props.onUsageReport(this.props.llmUsage)
 			} catch (reportError) {
-				console.error("CogniCatch: External onUsageReport callback failed.", reportError)
+				console.error(
+					"CogniCatch: External onUsageReport callback failed.",
+					reportError,
+				)
 			}
 		}
 
